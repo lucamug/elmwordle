@@ -1,0 +1,4 @@
+.bg-muted {background-color: var(--code-background-color); color: var(--contrast)}
+.bg-warning {background-color: var(--mark-background-color)}
+.bg-success {background-color: var(--ins-color)}
+.contrast {color: var(--contrast)}

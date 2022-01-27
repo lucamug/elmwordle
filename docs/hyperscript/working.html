@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"> -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" /> -->
+    <!-- <link rel="stylesheet" href="utils.css" /> -->
+    <link rel="stylesheet" href="css/pico.min.css">
+    <link rel="stylesheet" href="css/tachyons.min.css">
+    <link rel="stylesheet" href="css/utils.css">
+    <!-- <script src="https://unpkg.com/hyperscript.org@0.9.4"></script> -->
+    <script src="js/_hyperscript_web.min.js"></script>
+    <title>Hyperwordle</title>
+    <script type="text/hyperscript">
+        init fetch words.json as json then set $word to (random in it).toUpperCase() then log $word
+      def submit()
+        set remaining to $word
+        repeat for ch in children of first .guess index i
+          set key to <[letter=${ch.innerText}]/>
+          add .bg-muted to key
+          if ch.innerText == $word[i] then
+            add .bg-success to ch add .bg-success to key
+            set remaining to remaining.replace(ch.innerText, '')
+          end
+        end
+        repeat for ch in children of first .guess
+          set key to <[letter=${ch.innerText}]/>
+          if remaining.includes(ch.innerText) then add .bg-warning to ch add .bg-warning to key end
+          set remaining to remaining.replace(ch.innerText, '')
+        end
+        if (.bg-success in first .guess).length == 5 then remove .guess from .guess
+        otherwise remove .guess from first .guess
+      end
+      behavior kbdRow(keys) 
+        on click[target[@letter]] send keyup(keyCode: (target[@letter]).charCodeAt(0)) to <body/>
+        init repeat for ch in keys 
+          append `<button letter='${ch}' class='secondary ma1 pa2 w2'>${ch}</button>` to me
+      end
+    </script>
+</head>
+
+<body _="
+    on keyup(keyCode)[keyCode >= 65 and keyCode <= 90] put String.fromCharCode(keyCode) into first <:empty/> in first .guess
+    on keyup(keyCode)[keyCode == 8] put '' into last <.guess > :not(:empty)/>
+    on keyup(keyCode)[keyCode == 13 and (<:not(:empty)/> in first .guess).length == 5] call submit()
+    ">
+    <div class="container">
+        <h1 class="tc">Hyperwordle</h1>
+        <div _="on load set h to my innerHTML then repeat 5 times put h at the end of me">
+            <div class="guess contrast flex ttu tc b f3 w-100 justify-center">
+                <span class="w3 h3 ma1 pa3 bg-muted"></span>
+                <span class="w3 h3 ma1 pa3 bg-muted"></span>
+                <span class="w3 h3 ma1 pa3 bg-muted"></span>
+                <span class="w3 h3 ma1 pa3 bg-muted"></span>
+                <span class="w3 h3 ma1 pa3 bg-muted"></span>
+            </div>
+        </div>
+        <div class="flex justify-center ttu tc" _="install kbdRow(keys: 'QWERTYUIOP')"></div>
+        <div class="flex justify-center ttu tc" _="install kbdRow(keys: 'ASDFGHJKL')"></div>
+        <div class="flex justify-center ttu tc">
+            <button class="secondary ma1 pa2 w-auto" _="on click send keyup(keyCode: 13) to <body/>">Enter</button>
+            <div class="flex" _="install kbdRow(keys: 'ZXCVBNM')"></div>
+            <button class="secondary ma1 pa2 w-auto" _="on click send keyup(keyCode: 8) to <body/>">⌫</button>
+        </div>
+    </div>
+</body>
+
+</html>
